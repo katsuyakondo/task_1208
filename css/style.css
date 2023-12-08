@@ -1,0 +1,125 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.search-filed {
+    text-align: center;
+    padding: 20px;
+}
+
+.search-filed input {
+    width: 70%;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-filed button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.search-filed button:hover {
+    background-color: #0056b3;
+}
+
+.api-filed {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.hotpepper-area,
+.google-place-area {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: calc(50% - 10px);
+    /* Adjust for gap */
+    max-width: 500px;
+}
+
+.hotpepper-area h2,
+.google-place-area h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.hotpepper-area div,
+.google-place-area div {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.hotpepper-area div:last-child,
+.google-place-area div:last-child {
+    border-bottom: none;
+}
+
+.hotpepper-area h3,
+.google-place-area h3 {
+    color: #000;
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.hotpepper-area p,
+.google-place-area p {
+    color: #666;
+    margin: 5px 0;
+}
+
+.hotpepper-area a,
+.google-place-area a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.hotpepper-area a:hover,
+.google-place-area a:hover {
+    text-decoration: underline;
+}
+.hotpepper-area,
+.google-place-area {
+    /* 既存のスタイルを保持 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 個々の検索結果のスタイル */
+.hotpepper-area div,
+.google-place-area div {
+    flex: 1;
+    /* すべての子要素に等しいフレックスの成長を設定 */
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* 内容を均等に分散 */
+}
+
+/* 最後の検索結果の下線を除去 */
+.hotpepper-area div:last-child,
+.google-place-area div:last-child {
+    border-bottom: none;
+}
+
+#pre-search-message {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+}

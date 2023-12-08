@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グルメサーチ</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <!-- 検索フィールド -->
+    <div class="search-filed">
+        <input placeholder="キーワードを入力" />
+        <button>検索</button>
+    </div>
+    <p id="pre-search-message">現在地から半径5km以内の評価が高い順で表示されます。</p>
+
+    <!-- 検索結果表示エリア -->
+    <div class="api-filed">
+        <div class="hotpepper-area">
+            <p>ホットペッパーの検索結果</p>
+        </div>
+        <div class="google-place-area">
+            <p>Google placeの検索結果</p>
+        </div>
+    </div>
+
+    <!-- jQueryライブラリの読み込み -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- axiosライブラリの読み込み -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Google Place APIのスクリプトを読み込む -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+
+    <script>
+        // ドキュメントが読み込まれたらイベントリスナーを設定
+        $(document).ready(function () {
+            // 検索ボタンのクリックイベント
+            $('.search-filed button').on('click', function () {
+                 $('#pre-search-message').hide(); // 検索時にメッセージを非表示にする
+                const keyword = $('.search-filed input').val();
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    // ホットペッパーグルメとGoogle Placesの検索関数を呼び出し
+                    searchHotpepperRestaurantsNearby(keyword, latitude, longitude);
+                    searchGooglePlacesNearby(keyword, latitude, longitude);
+                }, function (error) {
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+        // ホットペッパーグルメAPIを利用した検索
+        function searchHotpepperRestaurantsNearby(keyword, latitude, longitude) {
+            const apiKey = ;
+            const url = 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
+
+            axios.get(url, {
+                params: {
+                    key: apiKey,
+                    keyword: keyword,
+                    lat: latitude,
+                    lng: longitude,
+                    range: 3,
+                    format: 'json'
+                }
+            })
+                .then(function (response) {
+                    console.log("ホットペッパーAPIのレスポンス:", response);
+                    displayHotpepperResults(response.data);
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+
+        // ホットペッパーグルメの検索結果を表示
+        function displayHotpepperResults(data) {
+            let resultsDiv = document.querySelector('.hotpepper-area');
+            resultsDiv.innerHTML = '';
+
+            if (data.results && data.results.shop) {
+                const sortedShops = data.results.shop.sort(function (a, b) {
+                    return b.score - a.score; // 評価スコアで降順ソート
+                });
+
+                // 最初の10件の店舗のみ表示
+                sortedShops.slice(0, 10).forEach(function (shop) {
+                    let div = document.createElement('div');
+                    div.innerHTML = '<h3>' + shop.name + '</h3><p>' + shop.address + '</p>' +
+                        (shop.urls && shop.urls.pc ? '<a href="' + shop.urls.pc + '" target="_blank">店舗の詳細</a>' : '<p>詳細情報はありません</p>');
+                    resultsDiv.appendChild(div);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p>お店が見つかりませんでした。</p>';
+            }
+        }
+
+        // Google Places APIを利用した検索
+        function searchGooglePlacesNearby(keyword, latitude, longitude) {
+            const service = new google.maps.places.PlacesService(document.createElement('div'));
+            service.nearbySearch({
+                location: new google.maps.LatLng(latitude, longitude),
+                radius: 5000, // 半径5km
+                type: ['restaurant'],
+                keyword: keyword // キーワード検索
+            }, function (results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    displayGooglePlacesResults(results);
+                } else {
+                    console.error('Google Places API Error:', status);
+                }
+            });
+        }
+
+        // Google Placesの検索結果を表示
+        function displayGooglePlacesResults(places) {
+            let resultsDiv = document.querySelector('.google-place-area');
+            resultsDiv.innerHTML = '';
+
+            // 評価順にソートし、最初の10件のみ表示
+            const sortedPlaces = places.sort(function (a, b) {
+                return (b.rating || 0) - (a.rating || 0);
+            });
+
+            sortedPlaces.slice(0, 10).forEach(function (place) {
+                const service = new google.maps.places.PlacesService(document.createElement('div'));
+                service.getDetails({
+                    placeId: place.place_id
+                }, function (placeDetails, status) {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        let div = document.createElement('div');
+                        div.innerHTML = '<h3>' + place.name + '</h3><p>' + place.vicinity + '</p>' +
+                            (placeDetails.website ? '<a href="' + placeDetails.website + '" target="_blank">ウェブサイト</a>' : '<p>ウェブサイトはありません</p>');
+                        resultsDiv.appendChild(div);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
